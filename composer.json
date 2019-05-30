@@ -1,0 +1,14 @@
+{
+  "name": "yuslf/composer-installer-plugin",
+  "type": "composer-plugin",
+  "license": "MIT",
+  "autoload": {
+    "psr-0": {"yuslf\\Composer": "src/"}
+  },
+  "extra": {
+    "class": "yuslf\\Composer\\InstallerPlugin"
+  },
+  "require": {
+    "composer-plugin-api": "1.8.5"
+  }
+}
