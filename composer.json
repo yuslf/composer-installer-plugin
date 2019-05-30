@@ -9,6 +9,6 @@
     "class": "yuslf\\Composer\\InstallerPlugin"
   },
   "require": {
-    "composer-plugin-api": "1.8.5"
+    "composer-plugin-api": "1.0.0"
   }
 }
