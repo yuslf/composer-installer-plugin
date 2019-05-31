@@ -1,5 +1,5 @@
 <?php
-namespace yuslf\Composer;
+namespace yuslf\ComposerInstallerPlugin;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;

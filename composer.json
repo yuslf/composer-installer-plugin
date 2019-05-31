@@ -3,15 +3,12 @@
   "type": "composer-plugin",
   "license": "MIT",
   "autoload": {
-    "psr-0": {"yuslf\\Composer": "src/"}
+    "psr-4": {"yuslf\\ComposerInstallerPlugin\\": "src/"}
   },
   "extra": {
-    "class": "yuslf\\Composer\\InstallerPlugin"
+    "class": "yuslf\\ComposerInstallerPlugin\\InstallerPlugin"
   },
   "require": {
-    "composer-plugin-api": "^1.0"
-  },
-  "require-dev": {
-    "composer/composer": "^1.3"
+    "composer-plugin-api": "*"
   }
 }
