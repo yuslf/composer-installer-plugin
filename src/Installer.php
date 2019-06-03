@@ -14,16 +14,14 @@ class Installer extends LibraryInstaller
 
     public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        $this->installCode($package);
-        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
-        if (!$repo->hasPackage($package)) {
-            $repo->addPackage(clone $package);
-        }
+        parent::install($repo, $package);
+        $this->filesystem->copy('jaeger_php/' . $package->getPrettyName(), './');
+        $this->filesystem->remove('jaeger_php/' . $package->getPrettyName());
     }
 
     public function getInstallPath(PackageInterface $package)
     {
-        return './';
+        return 'jaeger_php/' . $package->getPrettyName();
     }
 
     public function supports($packageType)
