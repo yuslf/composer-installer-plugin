@@ -13,7 +13,7 @@ class Installer extends LibraryInstaller
 
     public function getInstallPath(PackageInterface $package)
     {
-        return 'case/' . $package->getPrettyName();
+        return './';
     }
 
     public function supports($packageType)
