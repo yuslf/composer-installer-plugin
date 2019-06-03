@@ -16,7 +16,7 @@ class Installer extends LibraryInstaller
     {
         parent::install($repo, $package);
         $this->filesystem->copy('jaeger_php/' . $package->getPrettyName(), './');
-        $this->filesystem->remove('jaeger_php/' . $package->getPrettyName());
+        $this->filesystem->remove('jaeger_php');
     }
 
     public function getInstallPath(PackageInterface $package)
