@@ -11,6 +11,15 @@ class Installer extends LibraryInstaller
         return 'case/' . $package->getPrettyName();
     }*/
 
+    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        $this->installCode($package);
+        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
+        if (!$repo->hasPackage($package)) {
+            $repo->addPackage(clone $package);
+        }
+    }
+
     public function getInstallPath(PackageInterface $package)
     {
         return './';
