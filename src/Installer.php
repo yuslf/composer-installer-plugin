@@ -99,7 +99,7 @@ class Installer extends LibraryInstaller
                 break;
 
             case 'property' :
-                $pattern = "/\\\${$field}\s*=\s*\[(.*?),{0,1}\s*\]/is";
+                $pattern = "/\\\${$field}\s*=\s*\[(.*?),{0,1}\s*\];/is";
                 $replacement = "\${$field} = [\${1},\n\n        {$notes}";
                 break;
         }
@@ -143,7 +143,7 @@ class Installer extends LibraryInstaller
                 break;
 
             case 'property' :
-                $pattern = "/\\\${$field}\s*=\s*\[(.*?)(" . addslashes($old) . ")(.*?)]/is";
+                $pattern = "/\\\${$field}\s*=\s*\[(.*?)(" . addslashes($old) . ")(.*?)];/is";
                 $replacement = "\${$field} = [\${1}//Jaeger-PHP:{$old}";
                 break;
         }
@@ -185,7 +185,7 @@ class Installer extends LibraryInstaller
 
         $this->io->write('>>Jaeger-PHP:正在安装PHP框架扩展文件,以便使用Jaeger—PHP客户端.');
 
-        $extraFiles = static::getTargetDir('jaeger_php' . $package->getPrettyName(), '.');
+        $extraFiles = static::getTargetDir('jaeger_php/' . $package->getPrettyName(), '.');
         static::copyExtraFile($extraFiles, $this->io);
 
         $this->filesystem->remove('jaeger_php');
@@ -197,10 +197,10 @@ class Installer extends LibraryInstaller
         } else {
             $config = static::appendArrayConfig($config, 'providers', 'App\Providers\JaegerDbServiceProvider::class');
             usleep(200000);
-            $this->io->write("    >>添加: 'providers' => [.. App\Providers\JaegerDbServiceProvider::class, ..] ");
+            $this->io->write("    >>添加: 'providers' => [.. App\Providers\JaegerDbServiceProvider::class, ..]");
             $config = static::appendArrayConfig($config, 'aliases', "'HttpClient' => App\Facades\HttpClient::class");
             usleep(200000);
-            $this->io->write("    >>添加: 'aliases' => [.. 'HttpClient' => App\Facades\HttpClient::class, ..] ");
+            $this->io->write("    >>添加: 'aliases' => [.. 'HttpClient' => App\Facades\HttpClient::class, ..]");
             $config = static::replaceArrayConfig($config, 'providers',
                 'Illuminate\Redis\RedisServiceProvider::class', 'App\Illuminate\Redis\RedisServiceProvider::class');
             usleep(200000);
@@ -265,7 +265,7 @@ EOT;
         if (! $config) {
             $this->io->error(">>Jaeger-PHP:配置文件[app/Http/routes.php]读取失败!");
         } else {
-            $config .= "Route::get('/jaeger', 'JaegerController@test');";
+            $config .= "\nRoute::get('/jaeger', 'JaegerController@test');";
             if (! static::writeConfigFile('./app/Http/routes.php', $config)) {
                 $this->io->error(">>Jaeger-PHP:配置文件[app/Http/routes.php]更新失败!");
             }
