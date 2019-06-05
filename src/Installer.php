@@ -111,7 +111,7 @@ class Installer extends LibraryInstaller
         {
             $replacement .= "        {$v},\n";
         }
-        $replacement .= "\n    ]";
+        $replacement .= "\n    ];";
 
         return ['pattern' => $pattern, 'replacement' => $replacement];
     }
@@ -232,7 +232,7 @@ class Installer extends LibraryInstaller
         if (! $config) {
             $this->io->error(">>Jaeger-PHP:配置文件[app/Providers/EventServiceProvider.php]读取失败!");
         } else {
-            $value = "'App\Events\JaegerStartSpan' => [\n        'App\Listeners\JaegerStartSpanListener',\n    ]";
+            $value = "'App\Events\JaegerStartSpan' => [\n            'App\Listeners\JaegerStartSpanListener',\n        ]";
             $config = static::appendPropertyConfig($config, 'listen', $value);
             usleep(200000);
             $this->io->write("    >>添加: \$listen = [.. 'App\Events\JaegerStartSpan' => 'App\Listeners\JaegerStartSpanListener', ..] ");
