@@ -20,10 +20,10 @@ class Installer extends LibraryInstaller
         }
 
         $res = [];
-
+        $ignore = ['.', '..', 'composer.json', 'README.md', 'LICENSE'];
         while (($file = readdir($dh)) !== false)
         {
-            if ('.' === $file or '..' == $file) {
+            if (in_array($file, $ignore)) {
                 continue;
             }
             if ('dir' === filetype($source . '/' . $file)) {
@@ -52,7 +52,8 @@ class Installer extends LibraryInstaller
             if (! file_exists($targetPath)) {
                 @ mkdir($targetPath, '755', true);
             }
-            $io->write('    >>[' . $f[1] . '], ' . ((@ copy($f[0], $f[1])) ? 'Done.' : 'Failed.'));
+            usleep(200000);
+            $io->write('    >>' . $f[1] . ', ' . ((@ copy($f[0], $f[1])) ? 'Done.' : 'Failed.'));
         }
     }
 
@@ -94,12 +95,12 @@ class Installer extends LibraryInstaller
         {
             case 'array':
                 $pattern = "/[\"|']{$field}[\"|']\s*=>\s*\[(.*?),{0,1}\s*\]/is";
-                $replacement = "'{$field}' => [\n\${1},\n\n        {$notes}";
+                $replacement = "'{$field}' => [\${1},\n\n        {$notes}";
                 break;
 
             case 'property' :
-                $pattern = "/\${$field}\s*=\s*\[(.*?),{0,1}\s*\]/is";
-                $replacement = "\${$field} = [\n\${1},\n\n        {$notes}";
+                $pattern = "/\\\${$field}\s*=\s*\[(.*?),{0,1}\s*\]/is";
+                $replacement = "\${$field} = [\${1},\n\n        {$notes}";
                 break;
         }
 
@@ -138,14 +139,23 @@ class Installer extends LibraryInstaller
         {
             case 'array':
                 $pattern = "/[\"|']{$field}[\"|']\s*=>\s*\[(.*?)(" . addslashes($old) . ")(.*?)]/is";
-                $replacement = "'{$field}' => [\n\${1}\\\\\\\\Jaeger-PHP:{$old},\n        {$new}\${3}]";
+                $replacement = "'{$field}' => [\${1}//Jaeger-PHP:{$old}";
                 break;
 
             case 'property' :
-                $pattern = "/\${$field}\s*=\s*\[(.*?)(" . addslashes($old) . ")(.*?)]/is";
-                $replacement = "\${$field} = [\n\${1}\\\\\\\\Jaeger-PHP:{$old},\n        {$new}\${3}]";
+                $pattern = "/\\\${$field}\s*=\s*\[(.*?)(" . addslashes($old) . ")(.*?)]/is";
+                $replacement = "\${$field} = [\${1}//Jaeger-PHP:{$old}";
                 break;
         }
+
+        if (! is_array($new)) {
+            $new = [$new];
+        }
+        foreach ($new as $v)
+        {
+            $replacement .= ",\n        {$v}";
+        }
+        $replacement .= "\${3}]";
 
         return ['pattern' => $pattern, 'replacement' => $replacement];
     }
@@ -175,7 +185,7 @@ class Installer extends LibraryInstaller
 
         $this->io->write('>>Jaeger-PHP:正在安装PHP框架扩展文件,以便使用Jaeger—PHP客户端.');
 
-        $extraFiles = static::getTargetDir('jaeger_php/' . $package->getPrettyName(), './');
+        $extraFiles = static::getTargetDir('jaeger_php' . $package->getPrettyName(), '.');
         static::copyExtraFile($extraFiles, $this->io);
 
         $this->filesystem->remove('jaeger_php');
@@ -186,9 +196,15 @@ class Installer extends LibraryInstaller
             $this->io->error(">>Jaeger-PHP:配置文件[config/app.php]读取失败!");
         } else {
             $config = static::appendArrayConfig($config, 'providers', 'App\Providers\JaegerDbServiceProvider::class');
+            usleep(200000);
+            $this->io->write("    >>添加: 'providers' => [.. App\Providers\JaegerDbServiceProvider::class, ..] ");
             $config = static::appendArrayConfig($config, 'aliases', "'HttpClient' => App\Facades\HttpClient::class");
+            usleep(200000);
+            $this->io->write("    >>添加: 'aliases' => [.. 'HttpClient' => App\Facades\HttpClient::class, ..] ");
             $config = static::replaceArrayConfig($config, 'providers',
                 'Illuminate\Redis\RedisServiceProvider::class', 'App\Illuminate\Redis\RedisServiceProvider::class');
+            usleep(200000);
+            $this->io->write("    >>替换: 'providers' => [.. Illuminate\Redis\RedisServiceProvider::class, 为 App\Illuminate\Redis\RedisServiceProvider::class, ..] ");
             if (! static::writeConfigFile('./config/app.php', $config)) {
                 $this->io->error(">>Jaeger-PHP:配置文件[config/app.php]更新失败!");
             }
@@ -200,8 +216,11 @@ class Installer extends LibraryInstaller
         if (! $config) {
             $this->io->error(">>Jaeger-PHP:配置文件[app/Http/Kernel.php]读取失败!");
         } else {
-            $config = static::appendPropertyConfig($config, 'middleware', '\App\Http\Middleware\JaegerBefore::class');
-            $config = static::appendPropertyConfig($config, 'middleware', '\App\Http\Middleware\JaegerAfter::class');
+            $config = static::appendPropertyConfig($config, 'middleware', ['\App\Http\Middleware\JaegerBefore::class', '\App\Http\Middleware\JaegerAfter::class']);
+            usleep(200000);
+            $this->io->write("    >>添加: \$middleware = [.. \App\Http\Middleware\JaegerBefore::class, ..] ");
+            usleep(200000);
+            $this->io->write("    >>添加: \$middleware = [.. \App\Http\Middleware\JaegerAfter::class, ..] ");
             if (! static::writeConfigFile('./app/Http/Kernel.php', $config)) {
                 $this->io->error(">>Jaeger-PHP:配置文件[app/Http/Kernel.php]更新失败!");
             }
@@ -215,6 +234,8 @@ class Installer extends LibraryInstaller
         } else {
             $value = "'App\Events\JaegerStartSpan' => [\n        'App\Listeners\JaegerStartSpanListener',\n    ]";
             $config = static::appendPropertyConfig($config, 'listen', $value);
+            usleep(200000);
+            $this->io->write("    >>添加: \$listen = [.. 'App\Events\JaegerStartSpan' => 'App\Listeners\JaegerStartSpanListener', ..] ");
             if (! static::writeConfigFile('./app/Providers/EventServiceProvider.php', $config)) {
                 $this->io->error(">>Jaeger-PHP:配置文件[app/Providers/EventServiceProvider.php]更新失败!");
             }
