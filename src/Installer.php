@@ -111,7 +111,7 @@ class Installer extends LibraryInstaller
         {
             $replacement .= "        {$v},\n";
         }
-        $replacement .= "\n    ]" . ('property' == $type ?: ';');
+        $replacement .= "\n    ]" . ('property' == $type ? ';' : '');
 
         return ['pattern' => $pattern, 'replacement' => $replacement];
     }
@@ -155,7 +155,7 @@ class Installer extends LibraryInstaller
         {
             $replacement .= ",\n        {$v}";
         }
-        $replacement .= "\${3}]" . ('property' == $type ?: ';');
+        $replacement .= "\${3}]" . ('property' == $type ? ';' : '');
 
         return ['pattern' => $pattern, 'replacement' => $replacement];
     }
